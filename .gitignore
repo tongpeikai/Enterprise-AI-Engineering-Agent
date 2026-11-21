@@ -1,0 +1,76 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+.npm/
+.vite/
+coverage/
+playwright-report/
+test-results/
+
+# Runtime data
+data/
+uploads/
+artifacts/
+logs/
+runtime/
+workspace/
+workspaces/
+*.log
+*.pid
+*.sqlite
+*.sqlite3
+*.db
+
+# Models and large generated assets
+models/
+*.safetensors
+*.gguf
+*.bin
+*.onnx
+
+# Docker and local volumes
+.docker-data/
+volumes/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+.tmp/
+frontend/node_modules/
+frontend/dist/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+tmp/
+*.tmp
+*.swp
+*~

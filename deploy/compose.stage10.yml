@@ -1,0 +1,49 @@
+name: enterprise-agent
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-pgvector/pgvector:pg17@sha256:b513c48566e4777cd3370451400000c78eda6a08131d68f4c31d4a76f27bd8fd}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?required}
+      POSTGRES_USER: ${POSTGRES_USER:?required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+    volumes: ["enterprise_agent_postgres:/var/lib/postgresql/data", "../deploy/postgres/init:/docker-entrypoint-initdb.d:ro"]
+    networks: [internal]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"], interval: 5s, timeout: 5s, retries: 20}
+  agent-server:
+    image: ${AGENT_SERVER_IMAGE:-ghcr.io/openhands/agent-server:1.54.0-python@sha256:082368832a7e48087b64da38c7b2cf2442dd7621fde69f8d06ed52283ff136f8}
+    restart: unless-stopped
+    environment:
+      SESSION_API_KEY: "${AGENT_SERVER_SESSION_API_KEY:?required}"
+    networks: [internal]
+    volumes: ["enterprise_agent_workspace:/workspace", "enterprise_agent_server_state:/home/openhands/.openhands"]
+    healthcheck: {test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"], interval: 10s, timeout: 5s, retries: 30}
+  backend:
+    build: {context: .., dockerfile: backend/Dockerfile}
+    restart: unless-stopped
+    environment:
+      AGENT_SERVER_URL: http://agent-server:8000
+      AGENT_SERVER_SESSION_API_KEY: ${AGENT_SERVER_SESSION_API_KEY:?required}
+      AUTH_SIGNING_KEY: ${AUTH_SIGNING_KEY:?required}
+      AUTH_DB_PATH: /data/auth.sqlite
+      TASK_DB_PATH: /data/tasks.sqlite
+      KNOWLEDGE_DB_PATH: /data/knowledge.sqlite
+      WORKFLOW_DB_PATH: /data/workflows.sqlite
+      BENCHMARK_DB_PATH: /data/benchmarks.sqlite
+    volumes: ["enterprise_agent_backend_data:/data"]
+    ports: ["127.0.0.1:8000:8000"]
+    networks: [internal]
+    depends_on: {postgres: {condition: service_healthy}, agent-server: {condition: service_healthy}}
+    healthcheck: {test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"], interval: 10s, timeout: 5s, retries: 10}
+  frontend:
+    build: {context: ../frontend, dockerfile: Dockerfile.static}
+    restart: unless-stopped
+    ports: ["127.0.0.1:5173:80"]
+    depends_on: {backend: {condition: service_healthy}}
+    networks: [internal]
+networks: {internal: {name: enterprise_agent_stage10, internal: true}}
+volumes:
+  enterprise_agent_backend_data: {name: enterprise_agent_stage10_backend_data}
+  enterprise_agent_postgres: {name: enterprise_agent_stage10_postgres}
+  enterprise_agent_workspace: {name: enterprise_agent_stage10_workspace}
+  enterprise_agent_server_state: {name: enterprise_agent_stage10_server_state}

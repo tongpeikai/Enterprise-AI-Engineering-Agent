@@ -1,0 +1,7 @@
+FROM python:3.13-slim
+WORKDIR /srv
+COPY dist ./dist
+COPY static_server.py ./static_server.py
+EXPOSE 80
+HEALTHCHECK CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:80/')"
+CMD ["python", "static_server.py"]

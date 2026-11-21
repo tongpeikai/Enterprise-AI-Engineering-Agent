@@ -1,0 +1,8 @@
+import { Card, Col, Row, Statistic, Typography } from "antd";
+import { useEffect, useState } from "react";
+import { tasks } from "../services/api";
+import { metrics } from "../services/api";
+import type { Task } from "../types";
+import ReactECharts from "echarts-for-react";
+
+export function Dashboard() { const [items,setItems] = useState<Task[]>([]); const [metricCount,setMetricCount] = useState(0); useEffect(() => { tasks.list().then(r => setItems(r.data)).catch(() => setItems([])); metrics.summary().then(r => setMetricCount(Object.values(r.data.tasks ?? {}).reduce((sum:number,value) => sum + Number(value), 0))).catch(() => setMetricCount(0)); }, []); const count = (status:string) => items.filter(t => t.status === status).length; const chart = { tooltip: {}, xAxis: { type: "category", data: ["queued", "running", "succeeded", "failed", "cancelled"] }, yAxis: { type: "value" }, series: [{ type: "bar", data: [count("queued"), count("running"), count("succeeded"), count("failed"), count("cancelled")] }] }; return <><Typography.Title>Dashboard</Typography.Title><Row gutter={16}><Col span={6}><Card><Statistic title="Total tasks" value={items.length} /></Card></Col><Col span={6}><Card><Statistic title="Observed tasks" value={metricCount} /></Card></Col><Col span={6}><Card><Statistic title="Succeeded" value={count("succeeded")} /></Card></Col><Col span={6}><Card><Statistic title="Failed" value={count("failed")} /></Card></Col></Row><Card title="Task status distribution" style={{marginTop:16}}>{items.length ? <ReactECharts option={chart} /> : <Typography.Paragraph type="secondary">No task data available.</Typography.Paragraph>}</Card></>; }

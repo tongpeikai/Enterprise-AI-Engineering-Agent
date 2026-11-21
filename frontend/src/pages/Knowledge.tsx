@@ -1,0 +1,7 @@
+import { Button, Input, List, Typography } from "antd";
+import { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
+import { knowledge } from "../services/api";
+import type { Document } from "../types";
+
+export function Knowledge() { const [docs,setDocs]=useState<Document[]>([]); const [query,setQuery]=useState(""); const [results,setResults]=useState<unknown[]>([]); const load=()=>knowledge.list().then(r=>setDocs(r.data)); useEffect(()=>{void load();},[]); const upload=(event:ChangeEvent<HTMLInputElement>)=>{const file=event.target.files?.[0]; if(!file || file.size > 10_000_000) return; const reader=new FileReader(); reader.onload=async()=>{await knowledge.ingest(file.name,String(reader.result)); void load();}; reader.readAsText(file);}; return <><Typography.Title>Knowledge Base</Typography.Title><input type="file" accept=".txt,.md,.markdown,.pdf" onChange={upload}/><Input.Search value={query} onChange={e=>setQuery(e.target.value)} onSearch={q=>knowledge.search(q).then(r=>setResults(r.data))} enterButton="Search"/><List header={`Documents (${docs.length})`} dataSource={docs} renderItem={doc=><List.Item>{doc.source} · v{doc.version} · {doc.status}</List.Item>}/><List header="Results" dataSource={results as Array<{source:string;text:string;page?:number}>} renderItem={r=><List.Item>{r.source}{r.page ? ` · p.${r.page}` : ""}: {r.text}</List.Item>}/></>; }

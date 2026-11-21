@@ -1,0 +1,10 @@
+Enterprise AI Engineering Agent is an independent project built on the
+OpenHands Software Agent SDK.
+
+OpenHands Software Agent SDK
+Copyright (c) 2026 OpenHands contributors
+Licensed under the MIT License.
+Source: https://github.com/OpenHands/software-agent-sdk
+
+OpenHands and Agent Canvas are upstream projects and are not owned by this
+project. No upstream source code is copied into this repository during Stage 0.

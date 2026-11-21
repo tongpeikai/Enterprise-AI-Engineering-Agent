@@ -1,0 +1,28 @@
+name: enterprise-agent-stage10-lite
+services:
+  backend:
+    build: {context: .., dockerfile: backend/Dockerfile}
+    restart: unless-stopped
+    environment:
+      AGENT_SERVER_URL: http://host.docker.internal:8010
+      AGENT_SERVER_SESSION_API_KEY: "${AGENT_SERVER_SESSION_API_KEY:?required}"
+      AUTH_SIGNING_KEY: "${AUTH_SIGNING_KEY:?required}"
+      AUTH_DB_PATH: /data/auth.sqlite
+      TASK_DB_PATH: /data/tasks.sqlite
+      KNOWLEDGE_DB_PATH: /data/knowledge.sqlite
+      WORKFLOW_DB_PATH: /data/workflows.sqlite
+      BENCHMARK_DB_PATH: /data/benchmarks.sqlite
+    volumes: ["enterprise_agent_stage10_backend_data:/data"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["127.0.0.1:8000:8000"]
+    healthcheck: {test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"], interval: 5s, timeout: 5s, retries: 12}
+  frontend:
+    build: {context: ../frontend, dockerfile: Dockerfile.static}
+    restart: unless-stopped
+    ports: ["127.0.0.1:5173:80"]
+    depends_on: {backend: {condition: service_healthy}}
+    networks: [stage10]
+networks:
+  stage10: {name: enterprise_agent_stage10_lite}
+volumes:
+  enterprise_agent_stage10_backend_data: {name: enterprise_agent_stage10_backend_data, external: true}

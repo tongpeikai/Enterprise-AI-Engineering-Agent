@@ -1,0 +1,5 @@
+import { Layout as AntLayout, Menu, Typography, Button } from "antd";
+import { Link, Outlet } from "react-router-dom";
+import { useAuth } from "../stores/auth";
+
+export function Layout() { const logout = useAuth((s) => s.logout); return <AntLayout style={{ minHeight: "100vh" }}><AntLayout.Sider><Typography.Title level={4} style={{ color: "white", padding: 16 }}>EA Agent</Typography.Title><Menu theme="dark" items={[{key:"/",label:<Link to="/">Dashboard</Link>},{key:"/workspace",label:<Link to="/workspace">Workspace</Link>},{key:"/approvals",label:<Link to="/approvals">Approvals</Link>},{key:"/tasks",label:<Link to="/tasks">Tasks</Link>},{key:"/workflows",label:<Link to="/workflows">Workflows</Link>},{key:"/knowledge",label:<Link to="/knowledge">Knowledge</Link>},{key:"/tools",label:<Link to="/tools">Tools</Link>}]} /></AntLayout.Sider><AntLayout><AntLayout.Header style={{ background: "white", textAlign: "right" }}><Button onClick={logout}>Sign out</Button></AntLayout.Header><AntLayout.Content style={{ padding: 24 }}><Outlet /></AntLayout.Content></AntLayout></AntLayout>; }
