@@ -3,7 +3,7 @@
 ## Local release
 
 - Branch: `main`
-- Local commit: `99f423c` (`Initial release: Enterprise AI Engineering Agent`)
+- Initial release commit: `fddf57326534603ea778b3b594d73359ca32c34a`
 - Public files in the initial commit: 131
 - Secrets scan: PASS; no credential values or private files detected.
 - Backend Ruff: PASS.
@@ -22,6 +22,7 @@
 - Remote branch: `main` created successfully
 - Remote verification: GitHub API confirmed the public repository; README, LICENSE, and NOTICE were fetched successfully.
 - The final documentation update is being committed as a normal follow-up commit; no force push is used.
+- Current remote/local HEAD after this report update: recorded by the final verification command.
 
 ## Release scope
 
